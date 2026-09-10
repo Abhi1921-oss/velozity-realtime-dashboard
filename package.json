@@ -1,0 +1,23 @@
+{
+  "name": "velozity-project-dashboard",
+  "version": "1.0.0",
+  "description": "Real-Time Client Project Dashboard with Role-Based Access & Live Activity Feed",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client",
+    "build": "npm run build --prefix server && npm run build --prefix client",
+    "seed": "npm run seed --prefix server",
+    "db:migrate": "npm run db:migrate --prefix server",
+    "db:push": "npm run db:push --prefix server",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
