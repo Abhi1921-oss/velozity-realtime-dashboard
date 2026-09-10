@@ -1,0 +1,124 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id               String         @id @default(cuid())
+  name             String
+  email            String         @unique
+  passwordHash     String
+  role             String         @default("DEVELOPER")
+  avatarUrl        String?
+  refreshTokenHash String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  ownedProjects    Project[]      @relation("ProjectOwner")
+  assignedTasks    Task[]         @relation("TaskAssignee")
+  activityLogs     ActivityLog[]
+  notifications    Notification[]
+
+  @@index([email])
+  @@index([role])
+}
+
+model Client {
+  id          String    @id @default(cuid())
+  name        String
+  email       String    @unique
+  company     String
+  phone       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  projects    Project[]
+
+  @@index([name])
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  name        String
+  description String?
+  clientId    String
+  ownerId     String
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  client      Client        @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  owner       User          @relation("ProjectOwner", fields: [ownerId], references: [id], onDelete: Restrict)
+  tasks       Task[]
+  activities  ActivityLog[]
+
+  @@index([ownerId])
+  @@index([clientId])
+  @@index([createdAt])
+}
+
+model Task {
+  id           Int           @id @default(autoincrement())
+  title        String
+  description  String?
+  status       String        @default("TODO")
+  priority     String        @default("MEDIUM")
+  dueDate      DateTime
+  projectId    String
+  assignedToId String
+
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  project      Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  assignedTo   User          @relation("TaskAssignee", fields: [assignedToId], references: [id], onDelete: Restrict)
+  activityLogs ActivityLog[]
+
+  @@index([projectId, status])
+  @@index([assignedToId, status])
+  @@index([dueDate, status])
+  @@index([priority])
+  @@index([createdAt])
+}
+
+model ActivityLog {
+  id         String      @id @default(cuid())
+  taskId     Int
+  projectId  String
+  userId     String?
+  userName   String
+  taskTitle  String
+  fromStatus String?
+  toStatus   String
+  actionText String
+  createdAt  DateTime    @default(now())
+
+  task       Task        @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  project    Project     @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([projectId, createdAt])
+  @@index([userId, createdAt])
+  @@index([taskId])
+  @@index([createdAt])
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  taskId    Int?
+  projectId String?
+  type      String
+  title     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([userId, createdAt])
+}
