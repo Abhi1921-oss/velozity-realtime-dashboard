@@ -14,7 +14,7 @@ initSocket(server);
 // Start background cron scheduler for overdue tasks
 startOverdueWatcher();
 
-server.listen(config.port, () => {
+server.listen(config.port, '0.0.0.0', () => {
   console.log(`[Server] Velozity API service running on port ${config.port} (${config.nodeEnv})`);
   console.log(`[Socket] WebSocket server mounted`);
   console.log(`[Cron] Overdue task scheduler activated`);
