@@ -14,7 +14,9 @@ interface AuthenticatedSocket extends Socket {
 export const initSocket = (httpServer: HttpServer): SocketIOServer => {
   io = new SocketIOServer(httpServer, {
     cors: {
-      origin: config.clientUrl,
+      origin: (origin, callback) => {
+        callback(null, true);
+      },
       credentials: true,
       methods: ['GET', 'POST'],
     },

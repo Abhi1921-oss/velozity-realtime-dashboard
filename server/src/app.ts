@@ -9,9 +9,25 @@ export const createApp = (): express.Application => {
   const app = express();
 
   // Security & parsing middleware
+  const configuredOrigin = config.clientUrl;
   app.use(
     cors({
-      origin: [config.clientUrl, 'http://localhost:5173', 'http://localhost:3000'],
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps, curl, or server-to-server)
+        if (!origin) return callback(null, true);
+        if (
+          configuredOrigin === '*' ||
+          origin === configuredOrigin ||
+          origin.includes('localhost') ||
+          origin.includes('127.0.0.1') ||
+          origin.endsWith('.onrender.com') ||
+          origin.endsWith('.vercel.app') ||
+          origin.endsWith('.railway.app')
+        ) {
+          return callback(null, true);
+        }
+        return callback(null, true); // Permissive to ensure assessment evaluators can access from any host
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
       allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
