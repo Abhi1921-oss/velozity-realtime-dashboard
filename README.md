@@ -4,6 +4,9 @@ A production-grade, full-stack client project management dashboard featuring str
 
 Built for the **Velozity Global Solutions** Technical Hiring Assessment.
 
+🌐 **Live Production Deployment**: [https://velozity-dashboard.onrender.com](https://velozity-dashboard.onrender.com)  
+*(Includes 1-click test logins on the login page for Admin, Project Managers, and Developers)*
+
 ---
 
 ## 1. Architectural Decisions & Rationale
