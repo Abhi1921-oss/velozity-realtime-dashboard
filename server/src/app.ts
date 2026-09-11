@@ -1,6 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
+import path from 'path';
+import fs from 'fs';
 import routes from './routes';
 import { errorHandler } from './middleware/error.middleware';
 import { config } from './config/env';
@@ -40,6 +42,24 @@ export const createApp = (): express.Application => {
 
   // Mount API endpoints
   app.use('/api', routes);
+
+  // Serve Client SPA in production
+  const candidatePaths = [
+    path.resolve(__dirname, '../../client/dist'),
+    path.resolve(process.cwd(), 'client/dist'),
+    path.resolve(process.cwd(), '../client/dist'),
+  ];
+  const clientDistPath = candidatePaths.find((p) => fs.existsSync(p));
+
+  if (clientDistPath) {
+    app.use(express.static(clientDistPath));
+    app.get('*', (req, res, next) => {
+      if (req.originalUrl.startsWith('/api') || req.originalUrl.startsWith('/socket.io')) {
+        return next();
+      }
+      res.sendFile(path.join(clientDistPath, 'index.html'));
+    });
+  }
 
   // Catch-all 404 handler
   app.use((req, res) => {
